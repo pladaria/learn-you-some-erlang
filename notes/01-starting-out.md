@@ -422,3 +422,55 @@ Usually used to ensure byte alignment
 
 #### Bitwise Binary Operations
 
+`bsl` (bit shift left), `bsr` (bit shift right), `band`, `bor`, `bxor`, and `bnot`
+
+```
+2#00100 = 2#00010 bsl 1.
+2#00001 = 2#00010 bsr 1.
+2#10101 = 2#10001 bor 2#00101.
+```
+
+#### Binary Strings
+
+Instead of lists, binary strings are more like C arrays. Much more efficient in space.
+
+```
+<<"this is a binary string!">>
+```
+
+#### Binary comprehensions
+
+
+```
+1> << <<X>> || <<X>> <= <<1,2,3,4,5>>, X rem 2 == 0>>. <<2,4>>
+```
+
+The only change in syntax from regular list comprehensions is the <-, which becomes <= for binary generators, and using binaries (<<>>) instead of lists ([]).
+
+```
+2> Pixels = <<213,45,132,64,76,32,76,0,0,234,32,15>>. <<213,45,132,64,76,32,76,0,0,234,32,15>>
+3> RGB = [ {R,G,B} || <<R:8,G:8,B:8>> <= Pixels ]. [{213,45,132},{64,76,32},{76,0,0},{234,32,15}]
+```
+
+Changing <- to <= lets you use a binary as a generator
+
+```
+4> << <<R:8, G:8, B:8>> || {R,G,B} <- RGB >>. <<213,45,132,64,76,32,76,0,0,234,32,15>>
+```
+
+Resulting binary require a clearly de ned binary type if the generator returned binaries
+
+```
+5> << <<Bin>> || Bin <- [<<3,7,5,4,7>>] >>.
+** exception error: bad argument
+6> << <<Bin/binary>> || Bin <- [<<3,7,5,4,7>>] >>. <<3,7,5,4,7>>
+```
+
+It’s also possible to have a binary comprehension with a binary generator
+
+```
+7> << <<(X+1)/integer>> || <<X>> <= <<3,7,5,4,7>> >>. <<4,8,6,5,8>>
+```
+
+[More about this](http://user.it.uu.se/~pergu/papers/erlang05.pdf)
+
