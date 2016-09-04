@@ -77,3 +77,98 @@ Hello, world!
 
 ### Compiler options
 
+#### -debug_info
+#### -{outdir,Dir}
+
+By default, erlang creates the `.beam` file in the current directory. This option allows you to change it.
+
+#### -export_all
+
+Ignores the `-export` module attribute and exports all functions.
+
+#### -{d,Macro} or {d,Macro,Value}
+
+Defines a macro to be used in the module. By default `Value` is `true`.
+
+#### Example
+
+```
+7> compile:file(mymodule, [debug_info, export_all]). {ok,mymodule}
+8> c(mymodule, [debug_info, export_all]). {ok,mymodule}
+```
+
+Compile flags can be defined from within a module:
+
+```erlang
+-compile([debug_info, export_all]).
+```
+
+## Defining Macros
+
+Macros can be defined as module attributes:
+
+```erlang
+-define(MACRO, some_value).
+```
+
+Then can you use the macro as `?MACRO` inside any function of the module.
+
+```erlang
+-define(HOUR, 3600). % in seconds
+```
+
+Defining a function macro:
+
+```erlang
+-define(sub(X,Y), X-Y).
+```
+
+### Predefined macros
+
+- `?MODULE`: current module name as atom
+- `?FILE`: the filename as string
+- `?LINE`: the line number
+
+### Checking if a macro is defined
+
+```erlang
+-ifdef(DEBUGMODE).
+-define(DEBUG(S), io:format("dbg: "++S)).
+-else.
+-define(DEBUG(S), ok).
+-endif.
+```
+
+Another example:
+
+```erlang
+-ifdef(TEST).
+my_test_function() ->
+  run_some_tests().
+-endif.
+```
+
+## More about modules
+
+### Metadata
+
+`module_info/0` and `module_info/1` return the metadata of the module, for example:
+
+```
+9> mymodule:module_info(). [{exports,[{add,2},
+                            {hello,0},
+                            {greet_and_add_two,1},
+                            {module_info,0},
+                            {module_info,1}]},
+                            {imports,[]},
+                            {attributes,[{vsn,[174839656007867314473085021121413256129]}]},
+                            {compile,[{options,[]},
+                            {version,"4.8"},
+                            {time,{2013,2,13,2,56,32}},
+                            {source,"/path/mymodule.erl"}]}]
+10> mymodule:module_info(attributes). [{vsn,[174839656007867314473085021121413256129]}]
+```
+
+### Circular dependencies
+
+Avoid them.
